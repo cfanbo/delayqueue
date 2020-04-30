@@ -1,0 +1,16 @@
+language: go
+
+go:
+  - 1.13.x
+  - 1.14.x
+  - master
+
+matrix:
+  fast_finish: true
+
+before_install:
+  - go mod download
+  - go test .
+
+script:
+  - go vet .
