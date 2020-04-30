@@ -1,6 +1,8 @@
 # 延时队列
 
  [![Build Status](https://travis-ci.com/cfanbo/delayqueue.svg?branch=master)](https://travis-ci.com/cfanbo/delayqueue.svg?branch=master)
+ [![GoDoc](https://godoc.org/github.com/cfanbo/delayqueue/queue/?status.svg)](https://github.com/cfanbo/delayqueue/queue/?status.svg)
+
 
 基于Golang实现的延时队列
 
