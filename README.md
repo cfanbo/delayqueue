@@ -97,8 +97,8 @@ Elements = {Element、Element、Element}
     q := delayqueue.New(delayqueue.WithFrequency(time.Minute))
     q.Put(time.Now().Add(time.Minute * 2), "2分钟后消费此内容")
 
-## 存在问题
-1. 虽然系统运行目前类型的time.Duration, 但在使用时建议使用time.Second、time.Minute 和 time.Hour。
-2. 暂不支持数据持久化，所以若停止服务或者退出重启，则队列数据将全部丢失。  
+## 说明
+1. 系统支持频率周期类型是time.Duration, 如 time.Second、time.Minute 和 time.Hour。
+2. 队列暂不支持数据持久化，所以若停止服务或者退出重启，则队列数据将全部丢失。  
  建议在数据消费后对其状态进行变更存储，以便在下次服务启动成功后，立即将需要处理的数据写入延时队列。
   
