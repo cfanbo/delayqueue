@@ -164,11 +164,12 @@ func (q *Queue)info() {
 	for k, eles := range q.slots {
 		var count int
 		if eles == nil {
-			count = -1
-		} else {
-			count = eles.Len()
+			continue
+			//count = -1
 		}
-		fmt.Printf("%d: 元素数量 %d\n", k, count)
+
+		count = eles.Len()
+		fmt.Printf("%d: slot元素数量 %d\n", k, count)
 	}
 	fmt.Println()
 }

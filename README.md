@@ -95,6 +95,7 @@ Elements = {Element、Element、Element}
   
     // 在New() 函数里调用 WithFrequency() 函数即可
     q := delayqueue.New(delayqueue.WithFrequency(time.Minute))
+    q.Put(time.Now().Add(time.Minute * 2), "2分钟后消费此内容")
 
 ## 存在问题
 1. 虽然系统运行目前类型的time.Duration, 但在使用时建议使用time.Second、time.Minute 和 time.Hour。
