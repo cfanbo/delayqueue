@@ -1,6 +1,7 @@
 package delayqueue
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
@@ -21,6 +22,43 @@ func TestElements(t *testing.T)  {
 		t.Fatal("添加的元素内容与存储的内容不一致")
 	}
 }
+
+func TestElements_Detection(t *testing.T) {
+	eles := NewElements()
+
+	for i:=0; i< 10; i++ {
+		e := &Element{
+			bornTime:    time.Now(),
+			consumeTime: time.Now(),
+			cycleNum:    int(i / 3),
+			data:        "aa",
+		}
+		eles.Append(e)
+	}
+	for k, v := range eles.elements {
+		fmt.Println(k, v)
+	}
+
+	k := 0
+	for _, e := range eles.elements {
+		if e.cycleNum == 0 {
+			fmt.Println("delete", e.cycleNum)
+		} else {
+			// 存储
+			eles.elements[k] = e
+			k++
+		}
+	}
+	eles.elements = eles.elements[:k]
+	for k, v := range eles.elements {
+		fmt.Println(k, v)
+	}
+
+	if (len(eles.elements) != 7) {
+		t.Fatal("测试for语句中删除切片元素失败")
+	}
+}
+
 
 func BenchmarkNewElements(b *testing.B) {
 	eles := NewElements()

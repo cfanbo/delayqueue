@@ -35,34 +35,23 @@ func (e *Elements)Detection(ch chan<- Entry) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
-	for i, ele := range e.elements {
-
+	k := 0
+	for _, ele := range e.elements {
 		if ele.cycleNum == 0 {
 			// 写入chan
 			entry := NewEntry(ele.bornTime, ele.data)
 			ch<-entry
 
-			// 执行回调并移除此队列
-			// 第一个元素
-			if i == 0 {
-				e.elements = e.elements[1:]
-				continue
-			}
-
-			// 最后一个元素
-			len := len(e.elements) - 1
-			if i == len {
-				e.elements = e.elements[:len-1]
-				continue
-			}
-
-			// 中间元素
-			e.elements = append(e.elements[:i], e.elements[i+1:]...)
 		} else {
 			// 减少生命周期-1
 			ele.subCycleNum()
+
+			// 切片左侧是所有有效数据
+			e.elements[k] = ele
+			k++
 		}
 	}
+	e.elements = e.elements[:k]
 }
 
 // Empty 判断slot是否空slot
