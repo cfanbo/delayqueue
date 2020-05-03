@@ -6,6 +6,7 @@ package delayqueue
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 )
@@ -157,10 +158,10 @@ func (q *Queue)consumeSlot(slotIndex int) {
 
 // info 打印debug信息
 func (q *Queue)info() {
-	q.mu.Lock()
-	defer q.mu.Unlock()
+	// 打印内容
+	str := strings.Builder{}
+	str.WriteString(fmt.Sprintln("====", time.Now().Format("2006-01-02 15:04:05"), "===="))
 
-	fmt.Println("====", time.Now().Format("2006-01-02 15:04:05"), "====")
 	for k, eles := range q.slots {
 		var count int
 		if eles == nil {
@@ -169,7 +170,7 @@ func (q *Queue)info() {
 		}
 
 		count = eles.Len()
-		fmt.Printf("%d: slot元素数量 %d\n", k, count)
+		str.WriteString(fmt.Sprintf("%d: slot元素数量 %d\n", k, count))
 	}
-	fmt.Println()
+	fmt.Println(str.String())
 }
