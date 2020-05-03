@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// 消费实体
 type Entry struct {
 	// 信息创建时间
 	bornTime time.Time
@@ -17,6 +18,7 @@ type Entry struct {
 	body interface{}
 }
 
+// NewEntry 创建消费实体
 func NewEntry(bt time.Time, body interface{}) Entry {
 	return Entry{
 		consumeTime: time.Now(),
