@@ -24,7 +24,7 @@
 
 ### 基本概念
 > currentSlot 表示当前操作的环位置，这里是数组的索引值  
-> timer 定时器，每1秒执行一次  
+> timer 定时器，默认每秒移动一个slot
 
 系统主要由三部分组成，分别为slot、Elements和Element。  
 > Slots 代表一个环, 由多个slot组成，每个slot对应一个Elements     
@@ -38,8 +38,8 @@ slots[0] = Elements
 slots[1] = Elements  
 slots[...] = ...  
 
-一个Elements是由一个或多个 Element 元素组成，每个 Element 元素都有一个 cycleNum 字段，用来表示此元素是当前消费还是以后消费，其值代表着环的循环周期。
-如果当前Element的cycleNum字段值为0，则表示立即消费，如果cycleNum=2则表示还需要两个周期才能消费，本次循环需要将此 Element 元素周期数减少1，直到为0时结束。
+一个Elements是由一个或多个 Element 元素组成，每个 Element 元素都有一个 cycleNum 字段，用来表示此元素是立即消费还是以后消费，其值也可以理解成环的循环周期。
+如果cycleNum字段值为0，则表示立即消费，如果cycleNum=2则表示还需要两个环周期才能消费，每次循环都进行 cycleNum-- 操作，直到为0时结束。
 
 **集合与元素的关系**  
 Elements = {Element、Element、Element}
@@ -55,9 +55,9 @@ Elements = {Element、Element、Element}
 系统会有一个定时器timer，每1秒(可通过delayqueue.WithFrequency 函数调整)会移动一个slot, 此时currentSlot的值加1，表示下一个节点位置。   
 然后遍历当前环点中的所有元素，如果当前元素生命周期cycleNum=0，则立即消费，否则将cycleNum--, 直到循环完集合中的所有元素。  
 
-同时每次添加时新元素时，都要以当前时间所在的slot位置为起点，假如当前时间为 00:05:10, 在第 310 (5*60+10) 个slot, 添加一个元素为 00:02:50,  
-由于每秒移动一个slot, 新添加的时间slot为179(2*60+50), 则需要将这个元素放在当前位置后往数的第179个slot, 即这个环的第 310+179=489个slot中。
-如果添加的时间多于当前时间的一个小时，则存放的 slot 是不变的，只是当前元素的 cycleNum 值为小时的倍数而已。   
+同时每次添加新元素时，都要以当前时间所在的slot位置为起点，假如当前时间为 00:05:10, 在第 310 (5*60+10) 个slot, 这时添加一个元素时间为 00:02:50,  
+由于每秒移动一个slot, 而新添加元素时间slot为179(2*60+50), 则将这个元素放在当前位置后往数的第179个slot, 即这个环的第 310+179=489个slot中。
+如果添加的时间大于当前时间的多个环周期时，只需要将环周期对应的slot个数减去即可，环的周期数使用 cycleNum 值来表示。   
 
 ## 演示代码
 
