@@ -13,26 +13,22 @@ import (
 const (
 	// 队列总的slot数，每1秒移动一个slot
 	SlotsNum = 3600
-
-
-
 )
 
 var once sync.Once
 
 // computeCycleNum 计算生存周期
-func computeDealTimeCycleNum(t time.Time) (slotNum, cycleNum int) {
-	// 计算当前相差秒数
-	now := time.Now().Unix()
-	time := t.Unix()
-	if now - time >= 0 {
+func computeDealTimeCycleNum(t time.Time, frequency time.Duration) (slotNum, cycleNum int) {
+	// 计算当前相差时间，转换为 Nanoseconds 操作，以便支持任何时间粒度的频率
+	now := time.Now()
+	diff := t.Sub(now).Nanoseconds()
+	if (diff <= 0) {
 		return 0, 0
 	}
 
-	// 相差时间
-	diff := time - now
-	cycleNum = int(diff) / SlotsNum
-	slotNum = int(diff) % SlotsNum
+	f := frequency.Nanoseconds()
+	cycleNum = int(diff / f) / SlotsNum
+	slotNum = int(diff / f) % SlotsNum
 
 	return
 }
@@ -51,6 +47,9 @@ type Queue struct {
 
 	// mutex
 	mu sync.Mutex
+
+	// 间隔时间
+	frequency time.Duration
 
 	// 定时器
 	ticker *time.Ticker
@@ -72,6 +71,7 @@ func New(opts ...Option) *Queue {
 	options := NewQueueOptions(opts...)
 	once.Do(func() {
 		singleton = &Queue{
+			frequency: options.frequency,
 			ticker:      time.NewTicker(options.frequency),
 			slots:       [SlotsNum]*Elements{},
 			ch:          make(chan Entry, 100),
@@ -90,7 +90,7 @@ func (q *Queue)Debug(b bool) {
 // Put 写入元素
 func (q *Queue) Put(t time.Time, data interface{}) {
 	// 计算存储元素所在的slot位置和生命周期
-	slotNum, cycleNum := computeDealTimeCycleNum(t)
+	slotNum, cycleNum := computeDealTimeCycleNum(t, q.frequency)
 	ele := NewElement(t, cycleNum, data)
 
 	// 放入指定的slot中
