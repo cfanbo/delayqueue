@@ -1,6 +1,6 @@
 // 消息实体
 
-package queue
+package delayqueue
 
 import (
 	"time"

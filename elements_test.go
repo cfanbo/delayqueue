@@ -1,6 +1,9 @@
-package queue
+package delayqueue
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestElements(t *testing.T)  {
 	eles := NewElements()
@@ -8,7 +11,7 @@ func TestElements(t *testing.T)  {
 		t.Fatal("elements failed")
 	}
 
-	ele := NewElement(4, "test")
+	ele := NewElement(time.Now(), 4, "test")
 	eles.Append(ele)
 	if eles.elements == nil || eles.Empty() {
 		t.Fatal("elements 添加新元素失败")
@@ -22,7 +25,7 @@ func TestElements(t *testing.T)  {
 func BenchmarkNewElements(b *testing.B) {
 	eles := NewElements()
 	for i :=0; i<b.N; i++ {
-		ele := NewElement(i, i)
+		ele := NewElement(time.Now(), i, i)
 		eles.Append(ele)
 	}
 }

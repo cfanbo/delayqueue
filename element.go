@@ -1,6 +1,6 @@
 // slot中存储的元素
 
-package queue
+package delayqueue
 
 import "time"
 

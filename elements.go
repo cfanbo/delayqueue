@@ -1,6 +1,6 @@
 // slot单元，每个slot中会存储多个element, slot数据为slice
 
-package queue
+package delayqueue
 
 import (
 	"sync"

@@ -2,7 +2,7 @@
 // 队列共有 SLOT_NUM 个slot, 队列存储是一个数组类型变量slots
 // 每个slot又是一个slice数据类型的 Elements，存储的是 Element
 
-package queue
+package delayqueue
 
 import (
 	"fmt"
@@ -68,13 +68,13 @@ type Queue struct {
 var singleton *Queue
 
 // NewQueue 创建一个队列
-func NewQueue() *Queue {
+func New() *Queue {
 	opt := NewQueueOptions()
 	once.Do(func() {
 		singleton = &Queue{
-			ticker: time.NewTicker(opt.frequency),
-			slots: [SlotsCount]*Elements{},
-			ch: make(chan Entry, 100),
+			ticker:      time.NewTicker(opt.frequency),
+			slots:       [SlotsCount]*Elements{},
+			ch:          make(chan Entry, 100),
 			consumeFunc: consumeFunc,
 		}
 	})

@@ -10,7 +10,7 @@
 //
 //	import (
 //		"fmt"
-//		"github.com/cfanbo/delayqueue/queue"
+//		"github.com/cfanbo/delayqueue"
 //		"time"
 //	)
 //
@@ -22,7 +22,7 @@
 //	}
 //
 //	func main() {
-//		q := queue.NewQueue()
+//		q := delayqueue.New()
 //
 //		q.Put(time.Now().Add(time.Second * 2), "2秒后")
 //		q.Put(time.Now().Add(time.Second * 15), "15秒后")
