@@ -12,7 +12,7 @@ import (
 
 const (
 	// 队列总的slot数，每1秒移动一个slot
-	SlotsCount = 3600
+	SlotsNum = 3600
 
 
 
@@ -31,8 +31,8 @@ func computeDealTimeCycleNum(t time.Time) (slotNum, cycleNum int) {
 
 	// 相差时间
 	diff := time - now
-	cycleNum = int(diff) / SlotsCount
-	slotNum = int(diff) % SlotsCount
+	cycleNum = int(diff) / SlotsNum
+	slotNum = int(diff) % SlotsNum
 
 	return
 }
@@ -44,7 +44,7 @@ func consumeFunc(entry Entry) {
 
 type Queue struct {
 	// 数组 共3600个slot, 每秒移动一个slot
-	slots [SlotsCount]*Elements
+	slots [SlotsNum]*Elements
 
 	// 当前正在执行的slot
 	currentSlot int
@@ -68,12 +68,12 @@ type Queue struct {
 var singleton *Queue
 
 // NewQueue 创建一个队列
-func New() *Queue {
-	opt := NewQueueOptions()
+func New(opts ...Option) *Queue {
+	options := NewQueueOptions(opts...)
 	once.Do(func() {
 		singleton = &Queue{
-			ticker:      time.NewTicker(opt.frequency),
-			slots:       [SlotsCount]*Elements{},
+			ticker:      time.NewTicker(options.frequency),
+			slots:       [SlotsNum]*Elements{},
 			ch:          make(chan Entry, 100),
 			consumeFunc: consumeFunc,
 		}

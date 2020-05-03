@@ -33,7 +33,7 @@
 
 每个环节点slot就是一个数据集合 Elements，这个集合内的数据则表示当前时间点需要进行消费的信息集合，有可能是下次循环到这个节点的时间进行消费。  
 
-环与集合的关系  
+**环与集合的关系**  
 slots[0] = Elements  
 slots[1] = Elements  
 slots[...] = ...  
@@ -41,12 +41,23 @@ slots[...] = ...
 一个Elements是由一个或多个 Element 元素组成，每个 Element 元素都有一个 cycleNum 字段，用来表示此元素是当前消费还是以后消费，其值代表着环的循环周期。
 如果当前Element的cycleNum字段值为0，则表示立即消费，如果cycleNum=2则表示还需要两个周期才能消费，本次循环需要将此 Element 元素周期数减少1，直到为0时结束。
 
-集合与元素的关系  
+**集合与元素的关系**  
 Elements = {Element、Element、Element}
 
-### 运行原理
-系统会有一个定时器timer，每1秒会移动一个slot, 此时currentSlot的值加1，表示下一个节点位置。   
-然后遍历当前环点中的所有元素，如果当前元素生命周期cycleNum=0，则立即消费，否则将cycleNum--, 直到循环完集合中的所有元素
+所以整个延时队列看起来是这个样子:  
+
+    slots[0] = []*Elements{*Element{}, *Element{}, *Element{}...}
+    slots[1] = []*Elements{*Element{}, *Element{}, *Element{}...}
+    slots[2] = []*Elements{*Element{}, *Element{}, *Element{}...}
+    ...
+
+### 实现原理
+系统会有一个定时器timer，每1秒(可通过delayqueue.WithFrequency 函数调整)会移动一个slot, 此时currentSlot的值加1，表示下一个节点位置。   
+然后遍历当前环点中的所有元素，如果当前元素生命周期cycleNum=0，则立即消费，否则将cycleNum--, 直到循环完集合中的所有元素。  
+
+同时每次添加时新元素时，都要以当前时间所在的slot位置为起点，假如当前时间为 00:05:10, 在第 310 (5*60+10) 个slot, 添加一个元素为 00:02:50,  
+由于每秒移动一个slot, 新添加的时间slot为179(2*60+50), 则需要将这个元素放在当前位置后往数的第179个slot, 即这个环的第 310+179=489个slot中。
+如果添加的时间多于当前时间的一个小时，则存放的 slot 是不变的，只是当前元素的 cycleNum 值为小时的倍数而已。   
 
 ## 演示代码
 
@@ -79,8 +90,14 @@ Elements = {Element、Element、Element}
     }
 
 
+支持用户自定义间隔时间，如每分钟，每小时，只要是time.NewTicker()支持的 time.Duration 类型即可。  
+调用方法如下：  
+  
+    // 在New() 函数里调用 WithFrequency() 函数即可
+    q := delayqueue.New(delayqueue.WithFrequency(time.Minute))
 
 ## 存在问题
-1. 目前只支持秒级的事件触发
-2. 暂不支持数据持久化，所以若停止服务或者退出重启，则队列数据将全部丢失。 
-3. 环的节点数量由 SlotsCount 定义，移动slot的频率是由 Frequency 定义，暂不支持定义   
+1. 虽然系统运行目前类型的time.Duration, 但在使用时建议使用time.Second、time.Minute 和 time.Hour。
+2. 暂不支持数据持久化，所以若停止服务或者退出重启，则队列数据将全部丢失。  
+ 建议在数据消费后对其状态进行变更存储，以便在下次服务启动成功后，立即将需要处理的数据写入延时队列。
+  
