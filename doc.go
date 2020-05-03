@@ -24,9 +24,8 @@
 //	}
 //
 //	func main() {
+// 		// 分钟级别 delayqueue.New(delayqueue.WithFrequency(time.Minute))
 //		q := delayqueue.New()
-//		// 分钟级别，time.Duration 数据类型即可
-//		q := delayqueue.New(delayqueue.WithFrequency(time.Minute))
 //		q.Put(time.Now().Add(time.Second*2), "2秒后")
 //		q.Put(time.Now().Add(time.Second*15), "15秒后")
 //		q.Put(time.Now().Add(time.Second*8), "8秒后")
