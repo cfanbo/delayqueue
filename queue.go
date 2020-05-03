@@ -123,7 +123,7 @@ func (q *Queue)Run(f func(entry Entry)) {
 				go q.consumeSlot(q.currentSlot)
 
 				// 下移一位slot
-				if q.currentSlot >= (10 - 1) {
+				if q.currentSlot >= (SlotsNum - 1) {
 					q.currentSlot = 0
 				} else {
 					q.currentSlot++
