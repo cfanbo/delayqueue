@@ -22,7 +22,7 @@
 //	}
 //
 //	func main() {
-//		q := delayqueue.New()
+//		q := New()
 //
 //		q.Put(time.Now().Add(time.Second * 2), "2秒后")
 //		q.Put(time.Now().Add(time.Second * 15), "15秒后")
