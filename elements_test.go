@@ -8,13 +8,13 @@ import (
 func TestElements(t *testing.T)  {
 	eles := NewElements()
 	if eles.elements != nil {
-		t.Fatal("elements failed")
+		t.Fatal("初始化 slot 失败")
 	}
 
 	ele := NewElement(time.Now(), 4, "test")
 	eles.Append(ele)
 	if eles.elements == nil || eles.Empty() {
-		t.Fatal("elements 添加新元素失败")
+		t.Fatal("slot 添加 Element 元素失败")
 	}
 
 	if eles.elements[0].cycleNum != 4 || eles.elements[0].data != "test" {
