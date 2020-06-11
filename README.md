@@ -1,6 +1,7 @@
 # 延时队列
 
  [![Build Status](https://travis-ci.com/cfanbo/delayqueue.svg?branch=master)](https://travis-ci.com/cfanbo/delayqueue)
+ [![GoDoc](https://godoc.org/github.com/cfanbo/delayqueue.svg?status.svg)](https://godoc.org/github.com/cfanbo/delayqueue)
  
 
 
