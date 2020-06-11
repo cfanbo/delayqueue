@@ -111,6 +111,7 @@ func (q *Queue)Run(f func(entry Entry)) {
 	}
 
 	// detection slot 每次移动一个slot
+	defer q.ticker.Stop()
 	go func() {
 		for {
 			select {
