@@ -4,14 +4,14 @@ import "time"
 
 type Option func(*Options)
 
-// 队列选项
+// Options 队列选项
 type Options struct {
 	frequency time.Duration
-	slotsNum int
+	slotsNum  int
 }
 
 // Frequency 获取定时间隔
-func (o *Options)Frequency() time.Duration {
+func (o *Options) Frequency() time.Duration {
 	return o.frequency
 }
 
@@ -19,7 +19,7 @@ func (o *Options)Frequency() time.Duration {
 func NewQueueOptions(opts ...Option) *Options {
 	defaultOptions := &Options{
 		frequency: time.Second,
-		slotsNum: SlotsNum,
+		slotsNum:  SlotsNum,
 	}
 
 	for _, apply := range opts {

@@ -33,7 +33,9 @@
 //		q.Put(time.Now().Add(time.Second*50), "50秒后")
 //		q.Put(time.Now().Add(time.Second*28), "28秒后")
 //
-//		q.Run(consume)
+//		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+//		defer cancel()
+//		q.Run(ctx, consume)
 //	}
 //
 package delayqueue

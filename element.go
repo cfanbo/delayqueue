@@ -4,7 +4,7 @@ package delayqueue
 
 import "time"
 
-// 队列元素结构体
+// Element 队列元素结构体
 type Element struct {
 	// 创建时间
 	bornTime time.Time
@@ -19,13 +19,13 @@ type Element struct {
 	data interface{}
 }
 
-// 创建新的队列元素
+// NewElement 创建新的队列元素
 func NewElement(t time.Time, cycleNum int, data interface{}) *Element {
 	return &Element{
-		bornTime: time.Now(),
+		bornTime:    time.Now(),
 		consumeTime: t,
-		cycleNum: cycleNum,
-		data: data,
+		cycleNum:    cycleNum,
+		data:        data,
 	}
 }
 

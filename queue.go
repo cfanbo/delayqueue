@@ -5,6 +5,7 @@
 package delayqueue
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"sync"
@@ -12,7 +13,7 @@ import (
 )
 
 const (
-	// 队列总的slot数，每1秒移动一个slot
+	// SlotsNum 队列总的slot数，每1秒移动一个slot
 	SlotsNum = 3600
 )
 
@@ -23,13 +24,13 @@ func computeDealTimeCycleNum(t time.Time, frequency time.Duration) (slotNum, cyc
 	// 计算当前相差时间，转换为 Nanoseconds 操作，以便支持任何时间粒度的频率
 	now := time.Now()
 	diff := t.Sub(now).Nanoseconds()
-	if (diff <= 0) {
+	if diff <= 0 {
 		return 0, 0
 	}
 
 	f := frequency.Nanoseconds()
-	cycleNum = int(diff / f) / SlotsNum
-	slotNum = int(diff / f) % SlotsNum
+	cycleNum = int(diff/f) / SlotsNum
+	slotNum = int(diff/f) % SlotsNum
 
 	return
 }
@@ -45,9 +46,6 @@ type Queue struct {
 
 	// 当前正在执行的slot
 	currentSlot int
-
-	// mutex
-	mu sync.Mutex
 
 	// 间隔时间
 	frequency time.Duration
@@ -67,12 +65,12 @@ type Queue struct {
 
 var singleton *Queue
 
-// NewQueue 创建一个队列
+// New 创建一个队列
 func New(opts ...Option) *Queue {
 	options := NewQueueOptions(opts...)
 	once.Do(func() {
 		singleton = &Queue{
-			frequency: options.frequency,
+			frequency:   options.frequency,
 			ticker:      time.NewTicker(options.frequency),
 			slots:       [SlotsNum]*Elements{},
 			ch:          make(chan Entry, 100),
@@ -84,7 +82,7 @@ func New(opts ...Option) *Queue {
 }
 
 // Debug 调度模式
-func (q *Queue)Debug(b bool) {
+func (q *Queue) Debug(b bool) {
 	q.debug = b
 }
 
@@ -97,14 +95,14 @@ func (q *Queue) Put(t time.Time, data interface{}) {
 	// 放入指定的slot中
 	// 由于是从当前时间开始计算，所以要从当前slot开始计算，往后数第 slotNum 个slot
 	// 当前slot位置 + 计算下次运行时间的slot
-	if (q.slots[q.currentSlot + slotNum] == nil) {
-		q.slots[q.currentSlot + slotNum] = NewElements()
+	if q.slots[q.currentSlot+slotNum] == nil {
+		q.slots[q.currentSlot+slotNum] = NewElements()
 	}
-	q.slots[q.currentSlot + slotNum].Append(ele)
+	q.slots[q.currentSlot+slotNum].Append(ele)
 }
 
 // Run 启动服务
-func (q *Queue)Run(f func(entry Entry)) {
+func (q *Queue) Run(ctx context.Context, f func(entry Entry)) {
 	// define consumeFunc
 	if f != nil {
 		q.consumeFunc = f
@@ -117,7 +115,7 @@ func (q *Queue)Run(f func(entry Entry)) {
 			select {
 			case <-q.ticker.C:
 				// debug
-				if (q.debug) {
+				if q.debug {
 					go q.info()
 				}
 
@@ -130,6 +128,8 @@ func (q *Queue)Run(f func(entry Entry)) {
 				} else {
 					q.currentSlot++
 				}
+			case <-ctx.Done():
+				return
 			}
 		}
 	}()
@@ -137,14 +137,16 @@ func (q *Queue)Run(f func(entry Entry)) {
 	// consume
 	for {
 		select {
-			case ele := <-q.ch:
-				q.consumeFunc(ele)
+		case ele := <-q.ch:
+			q.consumeFunc(ele)
+		case <-ctx.Done():
+			return
 		}
 	}
 }
 
-// sonsumeSlot 检测指定的slot
-func (q *Queue)consumeSlot(slotIndex int) {
+// consumeSlot 检测指定的slot
+func (q *Queue) consumeSlot(slotIndex int) {
 	if q.slots[slotIndex] == nil {
 		// 当前slot从未使用
 		return
@@ -158,7 +160,7 @@ func (q *Queue)consumeSlot(slotIndex int) {
 }
 
 // info 打印debug信息
-func (q *Queue)info() {
+func (q *Queue) info() {
 	// 打印内容
 	str := strings.Builder{}
 	str.WriteString(fmt.Sprintln("====", time.Now().Format("2006-01-02 15:04:05"), "===="))
