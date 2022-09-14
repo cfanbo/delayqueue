@@ -9,7 +9,7 @@ import (
 // 队列slot 为Element元素的集合
 // 切片数据类型
 type Elements struct {
-	mu sync.Mutex
+	mu       sync.Mutex
 	elements []*Element
 }
 
@@ -19,7 +19,7 @@ func NewElements() *Elements {
 }
 
 // Append 添加新元素 Element 到slot
-func (e *Elements)Append(ele *Element) {
+func (e *Elements) Append(ele *Element) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
@@ -31,7 +31,7 @@ func (e *Elements)Append(ele *Element) {
 
 // Detection 遍历检测每个 solt 中的每个元素
 // 如果元素的当前生命周期为0，则表示立即执行，返回将生命周期进行 cycleNum--
-func (e *Elements)Detection(ch chan<- Entry) {
+func (e *Elements) Detection(ch chan<- Entry) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
@@ -40,7 +40,7 @@ func (e *Elements)Detection(ch chan<- Entry) {
 		if ele.cycleNum == 0 {
 			// 写入chan
 			entry := NewEntry(ele.bornTime, ele.data)
-			ch<-entry
+			ch <- entry
 
 		} else {
 			// 减少生命周期-1
@@ -55,11 +55,13 @@ func (e *Elements)Detection(ch chan<- Entry) {
 }
 
 // Empty 判断slot是否空slot
-func (e *Elements)Empty() bool {
+func (e *Elements) Empty() bool {
 	return e.Len() == 0
 }
 
 // Len 返回slot里面元素的个数
-func (e *Elements)Len() int {
+func (e *Elements) Len() int {
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	return len(e.elements)
 }
