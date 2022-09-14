@@ -6,14 +6,13 @@ import (
 	"sync"
 )
 
-// 队列slot 为Element元素的集合
-// 切片数据类型
+// Elements 队列slot 为Element元素的集合
 type Elements struct {
 	mu       sync.Mutex
 	elements []*Element
 }
 
-// 初始化slot，初始化以前 slot 的值为nil
+// NewElements 初始化slot，初始化以前 slot 的值为nil
 func NewElements() *Elements {
 	return &Elements{}
 }
